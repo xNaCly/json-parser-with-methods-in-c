@@ -1,0 +1,10 @@
+json-parser-with-methods-in-c
+=============================
+
+> A Json parser written in c, but using function pointers attached to a structure as methods, simulating structure methods.
+
+Why
+---
+
+I wanted to get a feel how bad it is to write a go like parser architecture in
+c, this is the result.
