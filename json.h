@@ -44,8 +44,8 @@ struct json {
   bool (*is_eof)(struct json *json);
   void (*advance)(struct json *json);
   struct json_value (*atom)(struct json *json);
-  struct json_value (*object)(struct json *json);
   struct json_value (*array)(struct json *json);
+  struct json_value (*object)(struct json *json);
   struct json_value (*next)(struct json *json);
 };
 

@@ -126,6 +126,14 @@ static struct json_value atom(struct json *json) {
   }
 }
 
+struct json_value array(struct json *json) {
+  ASSERT(json != NULL, "corrupted internal state");
+  ASSERT(json->cur(json) == '[', "invalid array start");
+  // TODO: implement this, i dont know how rn, i am toooo exhausted :(
+  ASSERT(json->cur(json) == ']', "missing array end");
+  return (struct json_value){.type = json_array};
+}
+
 struct json_value next(struct json *json) {
   ASSERT(json != NULL, "corrupted internal state");
   ASSERT(!json->is_eof(json), "unexpected empty input");
