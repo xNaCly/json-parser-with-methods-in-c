@@ -1,40 +1,36 @@
-#include <stdbool.h>
+#include "json.h"
+#include <stdio.h>
 #include <stdlib.h>
 
-enum json_type {
-  json_number,
-  json_string,
-  json_boolean,
-  json_null,
-  json_object,
-  json_array,
-};
+void print_json_value(struct json_value *json_value) {
+  printf("jsoninc: ");
+  switch (json_value->type) {
+  case json_null:
+    puts("null");
+    break;
+  case json_number:
+    printf("%f\n", json_value->atom_value.number);
+    break;
+  case json_string:
+    puts(json_value->atom_value.string);
+    break;
+  case json_boolean:
+    puts(json_value->atom_value.boolean ? "true" : "false");
+    break;
+  case json_object:
+  case json_array:
+  default:
+    ASSERT(0, "Unimplemented json_value case");
+    break;
+  }
+}
 
-struct json_value {
-  enum json_type type;
-  union {
-    bool boolean;
-    char *string;
-    long double number;
-  } atom_value;
-  struct json_value *array_childs;
-  struct json_value *object_keys;
-  struct json_value *object_values;
-  // length is filled for json_type=json_array|json_object
-  long length;
-};
-
-struct json {
-  char (*cur)(struct json *json);
-  bool (*is_eof)(struct json *json);
-  struct json_value (*atom)(struct json *json);
-  struct json_value (*object)(struct json *json);
-  struct json_value (*array)(struct json *json);
-  struct json_value (*next)(struct json *json);
-};
+#define R(string) #string
 
 int main(void) {
-  struct json_value val =
-      (struct json_value){.type = json_number, .atom_value.number = 1024.0};
+  struct json json = json_new(R("helloWorldIAmAString"));
+  struct json_value json_value = json.next(&json);
+  print_json_value(&json_value);
+  json_free_value(&json_value);
   return EXIT_SUCCESS;
 }
