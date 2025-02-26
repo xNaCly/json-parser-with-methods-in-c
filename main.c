@@ -3,34 +3,57 @@
 #include <stdlib.h>
 
 void print_json_value(struct json_value *json_value) {
-  printf("jsoninc: ");
   switch (json_value->type) {
   case json_null:
-    puts("null");
+    printf("null");
     break;
   case json_number:
-    printf("%f\n", json_value->atom_value.number);
+    printf("%f", json_value->value.number);
     break;
   case json_string:
-    puts(json_value->atom_value.string);
+    printf("\"%s\"", json_value->value.string);
     break;
   case json_boolean:
-    puts(json_value->atom_value.boolean ? "true" : "false");
+    printf(json_value->value.boolean ? "true" : "false");
     break;
   case json_object:
+    printf("{");
+    for (size_t i = 0; i < json_value->length; i++) {
+      printf("\"%s\": ", json_value->object_keys[i]);
+      print_json_value(&json_value->values[i]);
+      if (i < json_value->length - 1) {
+        printf(", ");
+      }
+    }
+    printf("}");
+    break;
   case json_array:
+    printf("[");
+    for (size_t i = 0; i < json_value->length; i++) {
+      print_json_value(&json_value->values[i]);
+      if (i < json_value->length - 1) {
+        printf(", ");
+      }
+    }
+    printf("]");
+    break;
   default:
     ASSERT(0, "Unimplemented json_value case");
     break;
   }
 }
 
-#define R(string) #string
-
 int main(void) {
-  struct json json = json_new(R("helloWorldIAmAString"));
-  struct json_value json_value = json.next(&json);
+  // TODO:
+  // struct json json = json_new(JSON({
+  //   "object" : {},
+  //   "array" : [[]],
+  //   "atoms" : [ "string", 0.1, true, false, null ],
+  // }));
+  struct json json = json_new(JSON("i am a string"));
+  struct json_value json_value = json.parse(&json);
   print_json_value(&json_value);
+  puts("");
   json_free_value(&json_value);
   return EXIT_SUCCESS;
 }

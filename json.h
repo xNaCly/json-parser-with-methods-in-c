@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define JSON(...) #__VA_ARGS__
+
 #define ASSERT(EXP, context)                                                   \
   if (!(EXP)) {                                                                \
     fprintf(stderr,                                                            \
@@ -23,16 +25,17 @@ enum json_type {
   json_array,
 };
 
+extern char *json_type_map[];
+
 struct json_value {
   enum json_type type;
   union {
     bool boolean;
     char *string;
     double number;
-  } atom_value;
-  struct json_value *array_childs;
-  char *object_keys;
-  struct json_value *object_values;
+  } value;
+  struct json_value *values;
+  char **object_keys;
   // length is filled for json_type=json_array|json_object
   size_t length;
 };
@@ -46,7 +49,7 @@ struct json {
   struct json_value (*atom)(struct json *json);
   struct json_value (*array)(struct json *json);
   struct json_value (*object)(struct json *json);
-  struct json_value (*next)(struct json *json);
+  struct json_value (*parse)(struct json *json);
 };
 
 struct json json_new(char *input);

@@ -3,20 +3,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+char *json_type_map[] = {
+    [json_number] = "json_number",   [json_string] = "json_string",
+    [json_boolean] = "json_boolean", [json_null] = "json_null",
+    [json_object] = "json_object",   [json_array] = "json_array",
+};
+
 void json_free_value(struct json_value *json_value) {
   switch (json_value->type) {
   case json_string:
-    free(json_value->atom_value.string);
+    free(json_value->value.string);
     break;
   case json_object:
     for (size_t i = 0; i < json_value->length; i++) {
       free(&json_value->object_keys[i]);
-      json_free_value(&json_value->object_values[i]);
+      json_free_value(&json_value->values[i]);
     }
     break;
   case json_array:
     for (size_t i = 0; i < json_value->length; i++) {
-      json_free_value(&json_value->array_childs[i]);
+      json_free_value(&json_value->values[i]);
     }
     break;
   case json_number:
@@ -56,8 +62,7 @@ static struct json_value number(struct json *json) {
     ;
 
   if (start == json->pos) {
-    return (struct json_value){.type = json_number,
-                               .atom_value = {.number = 0}};
+    return (struct json_value){.type = json_number, .value = {.number = 0}};
   }
 
   char *slice = malloc(sizeof(char) * json->pos - start + 1);
@@ -67,8 +72,7 @@ static struct json_value number(struct json *json) {
   double number = strtod(slice, NULL);
   free(slice);
 
-  return (struct json_value){.type = json_number,
-                             .atom_value = {.number = number}};
+  return (struct json_value){.type = json_number, .value = {.number = number}};
 }
 
 static struct json_value atom(struct json *json) {
@@ -95,7 +99,7 @@ static struct json_value atom(struct json *json) {
     json->advance(json);
     ASSERT(json->cur(json) == 'e', "unknown atom 'tru', wanted 'true'")
     return (struct json_value){.type = json_boolean,
-                               .atom_value = {.boolean = true}};
+                               .value = {.boolean = true}};
   case 'f': // false
     json->advance(json);
     ASSERT(json->cur(json) == 'a', "invalid atom 'f', wanted 'false'")
@@ -106,7 +110,7 @@ static struct json_value atom(struct json *json) {
     json->advance(json);
     ASSERT(json->cur(json) == 'e', "invalid atom 'fals', wanted 'false'")
     return (struct json_value){.type = json_boolean,
-                               .atom_value = {.boolean = false}};
+                               .value = {.boolean = false}};
   case '"':
     json->advance(json);
     size_t start = json->pos;
@@ -118,8 +122,7 @@ static struct json_value atom(struct json *json) {
     memcpy(slice, json->input + start, json->pos - start);
     slice[json->pos - start] = 0;
     ASSERT(json->cur(json) == '"', "unterminated string");
-    return (struct json_value){.type = json_string,
-                               .atom_value = {.string = slice}};
+    return (struct json_value){.type = json_string, .value = {.string = slice}};
   default:
     ASSERT(false, "unknown character at this point");
     return (struct json_value){.type = json_null};
@@ -134,7 +137,7 @@ struct json_value array(struct json *json) {
   return (struct json_value){.type = json_array};
 }
 
-struct json_value next(struct json *json) {
+struct json_value parse(struct json *json) {
   ASSERT(json != NULL, "corrupted internal state");
   ASSERT(!json->is_eof(json), "unexpected empty input");
 
@@ -163,7 +166,7 @@ struct json json_new(char *input) {
   j.cur = cur;
   j.is_eof = is_eof;
   j.advance = advance;
-  j.next = next;
+  j.parse = parse;
   j.atom = atom;
 
   return j;

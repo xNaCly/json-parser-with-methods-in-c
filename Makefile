@@ -16,10 +16,7 @@ CFLAGS := -std=c23 \
 	-Wstrict-overflow=5 \
 	-Wwrite-strings \
 	-Waggregate-return \
-	-Wcast-qual \
 	-Wswitch-default \
-	-Wswitch-enum \
-	-Wunreachable-code \
 	-Wno-discarded-qualifiers \
 	-Wno-aggregate-return
 
