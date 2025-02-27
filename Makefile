@@ -1,5 +1,5 @@
 CFLAGS := -std=c23 \
-	-O2 \
+	-g \
 	-Wall \
 	-Wextra \
 	-Werror \

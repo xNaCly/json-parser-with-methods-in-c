@@ -43,6 +43,7 @@ struct json_value {
 struct json {
   char *input;
   size_t pos;
+  size_t length;
   char (*cur)(struct json *json);
   bool (*is_eof)(struct json *json);
   void (*advance)(struct json *json);
@@ -54,5 +55,6 @@ struct json {
 
 struct json json_new(char *input);
 void json_free_value(struct json_value *json_value);
+void json_print_value(struct json_value *json_value);
 
 #endif
