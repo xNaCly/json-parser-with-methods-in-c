@@ -115,13 +115,9 @@ static struct json_value number(struct json *json) {
   size_t start = json->pos;
   // i dont give a fuck about scientific notation <3
   for (char cc = json->cur(json);
-       ((cc >= '0' && cc <= '9') || cc == '_' || cc == '.');
+       ((cc >= '0' && cc <= '9') || cc == '_' || cc == '.' || cc == '-');
        json->advance(json), cc = json->cur(json))
     ;
-
-  if (start == json->pos) {
-    return (struct json_value){.type = json_number, .value = {.number = 0}};
-  }
 
   char *slice = malloc(sizeof(char) * json->pos - start + 1);
   ASSERT(slice != NULL, "failed to allocate slice for number parsing")
@@ -157,7 +153,7 @@ static struct json_value atom(struct json *json) {
   skip_whitespace(json);
 
   char cc = json->cur(json);
-  if ((cc >= '0' && cc <= '9') || cc == '.') {
+  if ((cc >= '0' && cc <= '9') || cc == '.' || cc == '-') {
     return number(json);
   }
 

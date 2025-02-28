@@ -36,7 +36,6 @@ struct json_value {
   } value;
   struct json_value *values;
   char **object_keys;
-  // length is filled for json_type=json_array|json_object
   size_t length;
 };
 
